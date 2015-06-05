@@ -1,0 +1,56 @@
+defmodule Arya.JobbControllerTest do
+  use Arya.ConnCase
+
+  alias Arya.Jobb
+  @valid_attrs %{description: "some content", name: "some content", playbook: "some content", repository: "some content", users: 42}
+  @invalid_attrs %{}
+
+  setup do
+    conn = conn() |> put_req_header("accept", "application/json")
+    {:ok, conn: conn}
+  end
+
+  test "lists all entries on index", %{conn: conn} do
+    conn = get conn, jobb_path(conn, :index)
+    assert json_response(conn, 200)["data"] == []
+  end
+
+  test "shows chosen resource", %{conn: conn} do
+    jobb = Repo.insert %Jobb{}
+    conn = get conn, jobb_path(conn, :show, jobb)
+    assert json_response(conn, 200)["data"] == %{
+      "id" => jobb.id
+    }
+  end
+
+  test "creates and renders resource when data is valid", %{conn: conn} do
+    conn = post conn, jobb_path(conn, :create), jobb: @valid_attrs
+    assert json_response(conn, 200)["data"]["id"]
+    assert Repo.get_by(Jobb, @valid_attrs)
+  end
+
+  test "does not create resource and renders errors when data is invalid", %{conn: conn} do
+    conn = post conn, jobb_path(conn, :create), jobb: @invalid_attrs
+    assert json_response(conn, 422)["errors"] != %{}
+  end
+
+  test "updates and renders chosen resource when data is valid", %{conn: conn} do
+    jobb = Repo.insert %Jobb{}
+    conn = put conn, jobb_path(conn, :update, jobb), jobb: @valid_attrs
+    assert json_response(conn, 200)["data"]["id"]
+    assert Repo.get_by(Jobb, @valid_attrs)
+  end
+
+  test "does not update chosen resource and renders errors when data is invalid", %{conn: conn} do
+    jobb = Repo.insert %Jobb{}
+    conn = put conn, jobb_path(conn, :update, jobb), jobb: @invalid_attrs
+    assert json_response(conn, 422)["errors"] != %{}
+  end
+
+  test "deletes chosen resource", %{conn: conn} do
+    jobb = Repo.insert %Jobb{}
+    conn = delete conn, jobb_path(conn, :delete, jobb)
+    assert json_response(conn, 200)["data"]["id"]
+    refute Repo.get(Jobb, jobb.id)
+  end
+end

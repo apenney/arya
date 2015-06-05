@@ -1,0 +1,16 @@
+defmodule Arya.Repo.Migrations.CreateJob do
+  use Ecto.Migration
+
+  def change do
+    create table(:jobs) do
+      add :name, :string
+      add :repository, :string
+      add :playbook, :string
+      add :description, :string
+      add :users, :integer
+
+      timestamps
+    end
+
+  end
+end
